@@ -1,0 +1,220 @@
+{% extends 'base.html' %}
+{% load custom_filters %}  <!-- Add this line -->
+
+{% block title %}My Schedule - E-Hospitality{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12 d-flex justify-content-between align-items-center">
+            <div>
+                <h2><i class="fas fa-calendar-week"></i> My Weekly Schedule</h2>
+                <p class="text-muted">Week of {{ start_date|date:"M d" }} - {{ end_date|date:"M d, Y" }}</p>
+            </div>
+            <div>
+                <a href="{% url 'doctors:create_appointment' %}" class="btn btn-success">
+                    <i class="fas fa-plus"></i> New Appointment
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Week Navigation -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <a href="?date={{ prev_week|date:'Y-m-d' }}" class="btn btn-outline-primary">
+                            <i class="fas fa-chevron-left"></i> Previous Week
+                        </a>
+                        
+                        <div class="text-center">
+                            <h5 class="mb-0">{{ start_date|date:"F d" }} - {{ end_date|date:"F d, Y" }}</h5>
+                            <small class="text-muted">
+                                {% if today >= start_date and today <= end_date %}
+                                    <i class="fas fa-circle text-success"></i> Current Week
+                                {% endif %}
+                            </small>
+                        </div>
+                        
+                        <a href="?date={{ next_week|date:'Y-m-d' }}" class="btn btn-outline-primary">
+                            Next Week <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card bg-primary text-white">
+                <div class="card-body text-center">
+                    <i class="fas fa-calendar-check fa-2x mb-2"></i>
+                    <h4>{{ total_appointments }}</h4>
+                    <p class="mb-0">This Week</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-success text-white">
+                <div class="card-body text-center">
+                    <i class="fas fa-check-circle fa-2x mb-2"></i>
+                    <h4>{{ completed_appointments }}</h4>
+                    <p class="mb-0">Completed</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card bg-warning text-white">
+                <div class="card-body text-center">
+                    <i class="fas fa-clock fa-2x mb-2"></i>
+                    <h4>{{ pending_appointments }}</h4>
+                    <p class="mb-0">Pending</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Schedule Grid -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-table"></i> Weekly Schedule</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-bordered mb-0 schedule-table">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th width="100px">Time</th>
+                                    <th>Monday<br><small>{{ start_date|date:"M d" }}</small></th>
+                                    <th>Tuesday<br><small>{{ start_date|add_days:1|date:"M d" }}</small></th>
+                                    <th>Wednesday<br><small>{{ start_date|add_days:2|date:"M d" }}</small></th>
+                                    <th>Thursday<br><small>{{ start_date|add_days:3|date:"M d" }}</small></th>
+                                    <th>Friday<br><small>{{ start_date|add_days:4|date:"M d" }}</small></th>
+                                    <th>Saturday<br><small>{{ start_date|add_days:5|date:"M d" }}</small></th>
+                                    <th>Sunday<br><small>{{ start_date|add_days:6|date:"M d" }}</small></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for hour in "09,10,11,12,13,14,15,16,17"|split:"," %}
+                                <tr>
+                                    <td class="time-slot text-center fw-bold bg-light">
+                                        {{ hour }}:00
+                                    </td>
+                                    {% for day in "0,1,2,3,4,5,6"|split:"," %}
+                                    <td class="schedule-cell p-1" style="height: 80px; vertical-align: top;">
+                                        {% for appointment in appointments %}
+                                            {% if appointment.appointment_date|date:"w" == day and appointment.appointment_date|date:"H" == hour %}
+                                                <div class="appointment-block bg-{% if appointment.status == 'completed' %}success{% elif appointment.status == 'cancelled' %}danger{% else %}primary{% endif %} text-white p-2 rounded mb-1 small">
+                                                    <div class="fw-bold">{{ appointment.appointment_date|date:"H:i" }}</div>
+                                                    <div>{{ appointment.patient.user.get_full_name|truncatechars:15 }}</div>
+                                                    <div class="text-truncate">{{ appointment.reason|truncatechars:20 }}</div>
+                                                </div>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </td>
+                                    {% endfor %}
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Appointments List for Mobile -->
+    <div class="row mt-4 d-md-none">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0"><i class="fas fa-list"></i> This Week's Appointments</h5>
+                </div>
+                <div class="card-body">
+                    {% if appointments %}
+                        {% for appointment in appointments %}
+                        <div class="card mb-2">
+                            <div class="card-body py-2">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong>{{ appointment.appointment_date|date:"D, M d" }}</strong> at {{ appointment.appointment_date|date:"H:i" }}<br>
+                                        <small class="text-muted">{{ appointment.patient.user.get_full_name }}</small>
+                                    </div>
+                                    <span class="badge bg-{% if appointment.status == 'completed' %}success{% elif appointment.status == 'cancelled' %}danger{% else %}primary{% endif %}">
+                                        {{ appointment.get_status_display }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="text-muted text-center">No appointments this week.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_head %}
+<style>
+.schedule-table {
+    font-size: 0.9rem;
+}
+
+.schedule-cell {
+    min-height: 80px;
+    position: relative;
+}
+
+.appointment-block {
+    cursor: pointer;
+    transition: transform 0.2s ease;
+    font-size: 0.75rem;
+}
+
+.appointment-block:hover {
+    transform: scale(1.05);
+    z-index: 10;
+    position: relative;
+}
+
+.time-slot {
+    background-color: #f8f9fa !important;
+    font-weight: bold;
+}
+
+@media (max-width: 768px) {
+    .schedule-table {
+        display: none;
+    }
+}
+
+.table-bordered th, .table-bordered td {
+    border: 1px solid #dee2e6;
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add click handlers for appointment blocks
+    const appointmentBlocks = document.querySelectorAll('.appointment-block');
+    
+    appointmentBlocks.forEach(block => {
+        block.addEventListener('click', function() {
+            // You can add appointment detail modal or navigation here
+            alert('Clicked appointment block - implement appointment detail view');
+        });
+    });
+});
+</script>
+{% endblock %}

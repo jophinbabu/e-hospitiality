@@ -1,0 +1,153 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - E-Hospitality{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2><i class="fas fa-tachometer-alt"></i> Welcome back, {{ user.first_name|default:user.username }}!</h2>
+            <p class="text-muted">You are logged in as: <strong>{{ user.get_user_type_display }}</strong></p>
+        </div>
+    </div>
+
+    <!-- Quick Access to Dashboard -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card bg-primary text-white">
+                <div class="card-body text-center">
+                    <h4 class="card-title">
+                        <i class="fas fa-rocket"></i> Quick Access
+                    </h4>
+                    <p class="card-text">Jump directly to your role-specific dashboard</p>
+                    
+                    {% if user.user_type == 'doctor' %}
+                        <a href="{% url 'doctors:dashboard' %}" class="btn btn-light btn-lg">
+                            <i class="fas fa-user-md"></i> Go to Doctor Dashboard
+                        </a>
+                    {% elif user.user_type == 'patient' %}
+                        <a href="{% url 'patients:dashboard' %}" class="btn btn-light btn-lg">
+                            <i class="fas fa-user-injured"></i> Go to Patient Dashboard
+                        </a>
+                    {% elif user.user_type == 'admin' %}
+                        <a href="{% url 'admins:dashboard' %}" class="btn btn-light btn-lg">
+                            <i class="fas fa-users-cog"></i> Go to Admin Dashboard
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row">
+        <div class="col-12 mb-3">
+            <h4><i class="fas fa-bolt"></i> Quick Actions</h4>
+        </div>
+        
+        {% if user.user_type == 'doctor' %}
+            <div class="col-md-3 mb-3">
+                <a href="{% url 'doctors:appointments' %}" class="card text-decoration-none h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-calendar-check fa-2x text-primary mb-3"></i>
+                        <h6 class="card-title">My Appointments</h6>
+                        <p class="card-text text-muted">View and manage appointments</p>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-3 mb-3">
+                <a href="{% url 'doctors:patients' %}" class="card text-decoration-none h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-users fa-2x text-success mb-3"></i>
+                        <h6 class="card-title">My Patients</h6>
+                        <p class="card-text text-muted">Manage patient records</p>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-3 mb-3">
+                <a href="{% url 'doctors:prescriptions' %}" class="card text-decoration-none h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-prescription fa-2x text-warning mb-3"></i>
+                        <h6 class="card-title">Prescriptions</h6>
+                        <p class="card-text text-muted">Create and view prescriptions</p>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-3 mb-3">
+                <a href="{% url 'doctors:schedule' %}" class="card text-decoration-none h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-calendar-alt fa-2x text-info mb-3"></i>
+                        <h6 class="card-title">My Schedule</h6>
+                        <p class="card-text text-muted">View weekly schedule</p>
+                    </div>
+                </a>
+            </div>
+        {% elif user.user_type == 'patient' %}
+            <div class="col-md-3 mb-3">
+                <a href="{% url 'patients:appointments' %}" class="card text-decoration-none h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-calendar-check fa-2x text-primary mb-3"></i>
+                        <h6 class="card-title">My Appointments</h6>
+                        <p class="card-text text-muted">View scheduled appointments</p>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-3 mb-3">
+                <a href="{% url 'patients:book_appointment' %}" class="card text-decoration-none h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-calendar-plus fa-2x text-success mb-3"></i>
+                        <h6 class="card-title">Book Appointment</h6>
+                        <p class="card-text text-muted">Schedule new appointment</p>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-3 mb-3">
+                <a href="{% url 'patients:medical_history' %}" class="card text-decoration-none h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-file-medical fa-2x text-warning mb-3"></i>
+                        <h6 class="card-title">Medical History</h6>
+                        <p class="card-text text-muted">View medical records</p>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-3 mb-3">
+                <a href="{% url 'patients:billing' %}" class="card text-decoration-none h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-receipt fa-2x text-info mb-3"></i>
+                        <h6 class="card-title">My Bills</h6>
+                        <p class="card-text text-muted">View and pay bills</p>
+                    </div>
+                </a>
+            </div>
+        {% elif user.user_type == 'admin' %}
+            <div class="col-md-4 mb-3">
+                <a href="{% url 'admins:user_management' %}" class="card text-decoration-none h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-users-cog fa-2x text-primary mb-3"></i>
+                        <h6 class="card-title">Manage Users</h6>
+                        <p class="card-text text-muted">Oversee all system users</p>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-4 mb-3">
+                <a href="{% url 'admins:appointment_management' %}" class="card text-decoration-none h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-calendar-alt fa-2x text-success mb-3"></i>
+                        <h6 class="card-title">All Appointments</h6>
+                        <p class="card-text text-muted">View system appointments</p>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-4 mb-3">
+                <a href="{% url 'admins:dashboard' %}" class="card text-decoration-none h-100">
+                    <div class="card-body text-center">
+                        <i class="fas fa-chart-bar fa-2x text-info mb-3"></i>
+                        <h6 class="card-title">System Reports</h6>
+                        <p class="card-text text-muted">View analytics dashboard</p>
+                    </div>
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

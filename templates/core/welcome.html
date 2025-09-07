@@ -1,0 +1,90 @@
+{% extends 'base.html' %}
+
+{% block title %}Welcome to E-Hospitality{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <!-- Hero Section -->
+            <div class="jumbotron bg-primary text-white rounded p-5 mb-5 text-center">
+                <h1 class="display-4 mb-4">
+                    <i class="fas fa-hospital-user"></i> Welcome to E-Hospitality
+                </h1>
+                <p class="lead mb-4">Your comprehensive healthcare management system providing quality care and efficient management for patients, doctors, and administrators.</p>
+                
+                <div class="mt-4">
+                    <a href="{% url 'core:register' %}" class="btn btn-light btn-lg me-3">
+                        <i class="fas fa-user-plus"></i> Get Started
+                    </a>
+                    <a href="{% url 'core:login' %}" class="btn btn-outline-light btn-lg">
+                        <i class="fas fa-sign-in-alt"></i> Login
+                    </a>
+                </div>
+            </div>
+
+            <!-- Features Section -->
+            <div class="row mb-5">
+                <div class="col-12 text-center mb-4">
+                    <h2 class="mb-4">Choose Your Role</h2>
+                    <p class="text-muted">Select your role to get started with E-Hospitality</p>
+                </div>
+                
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body text-center">
+                            <i class="fas fa-user-injured fa-3x text-primary mb-3"></i>
+                            <h5 class="card-title">For Patients</h5>
+                            <p class="card-text">Book appointments, view medical history, manage prescriptions, and track your health journey with ease.</p>
+                            <a href="{% url 'core:register' %}" class="btn btn-primary">
+                                <i class="fas fa-user-plus"></i> Register as Patient
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body text-center">
+                            <i class="fas fa-user-md fa-3x text-success mb-3"></i>
+                            <h5 class="card-title">For Doctors</h5>
+                            <p class="card-text">Manage appointments, patient records, create prescriptions, and streamline your medical practice.</p>
+                            <a href="{% url 'core:register' %}" class="btn btn-success">
+                                <i class="fas fa-user-plus"></i> Register as Doctor
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4 mb-4">
+                    <div class="card h-100 shadow-sm">
+                        <div class="card-body text-center">
+                            <i class="fas fa-users-cog fa-3x text-info mb-3"></i>
+                            <h5 class="card-title">For Administrators</h5>
+                            <p class="card-text">Oversee operations, manage users, generate reports, and ensure smooth healthcare delivery.</p>
+                            <a href="{% url 'core:register' %}" class="btn btn-info">
+                                <i class="fas fa-user-plus"></i> Register as Admin
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Already Have Account Section -->
+            <div class="row">
+                <div class="col-12 text-center">
+                    <div class="card bg-light">
+                        <div class="card-body">
+                            <h5 class="card-title">Already Have an Account?</h5>
+                            <p class="card-text">Sign in to access your dashboard and continue managing your healthcare.</p>
+                            <a href="{% url 'core:login' %}" class="btn btn-primary">
+                                <i class="fas fa-sign-in-alt"></i> Login Now
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

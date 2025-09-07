@@ -1,0 +1,41 @@
+/* Basic styling for E-Hospitality */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #f8f9fa;
+}
+
+.navbar-brand {
+    font-weight: bold;
+}
+
+.card {
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    border: 1px solid rgba(0, 0, 0, 0.125);
+}
+
+.btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+.alert {
+    margin-bottom: 1rem;
+}
+
+.table {
+    background-color: white;
+}
+
+.dashboard-card {
+    margin-bottom: 1rem;
+}
+
+.stats-card {
+    background: linear-gradient(45deg, #007bff, #0056b3);
+    color: white;
+}
+
+.stats-card h3 {
+    font-size: 2rem;
+    font-weight: bold;
+}

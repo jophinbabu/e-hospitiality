@@ -1,0 +1,170 @@
+{% extends 'base.html' %}
+
+{% block title %}Book Appointment - E-Hospitality{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="mb-0"><i class="fas fa-calendar-plus"></i> Book New Appointment</h3>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="department" class="form-label">
+                                <i class="fas fa-building"></i> Department
+                            </label>
+                            <select class="form-select" id="department" onchange="filterDoctors()">
+                                <option value="">Select Department</option>
+                                {% for department in departments %}
+                                <option value="{{ department.id }}">{{ department.name }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label for="doctor" class="form-label">
+                                <i class="fas fa-user-md"></i> Doctor
+                            </label>
+                            <select class="form-select" id="doctor" name="doctor" required>
+                                <option value="">Select Doctor</option>
+                                {% for doctor in doctors %}
+                                <option value="{{ doctor.id }}" data-department="{{ doctor.department.id }}">
+                                    Dr. {{ doctor.user.first_name }} {{ doctor.user.last_name }} 
+                                    ({{ doctor.specialization }})
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label for="appointment_date" class="form-label">
+                                <i class="fas fa-calendar-alt"></i> Appointment Date
+                            </label>
+                            <input type="datetime-local" 
+                                   class="form-control" 
+                                   id="appointment_date" 
+                                   name="appointment_date" 
+                                   required
+                                   min="{{ today|date:'Y-m-d' }}T08:00">
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">
+                                <i class="fas fa-clock"></i> Available Times
+                            </label>
+                            <div class="d-flex flex-wrap gap-2">
+                                <button type="button" class="btn btn-outline-secondary btn-sm time-slot" data-time="09:00">9:00 AM</button>
+                                <button type="button" class="btn btn-outline-secondary btn-sm time-slot" data-time="10:00">10:00 AM</button>
+                                <button type="button" class="btn btn-outline-secondary btn-sm time-slot" data-time="11:00">11:00 AM</button>
+                                <button type="button" class="btn btn-outline-secondary btn-sm time-slot" data-time="14:00">2:00 PM</button>
+                                <button type="button" class="btn btn-outline-secondary btn-sm time-slot" data-time="15:00">3:00 PM</button>
+                                <button type="button" class="btn btn-outline-secondary btn-sm time-slot" data-time="16:00">4:00 PM</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="reason" class="form-label">
+                            <i class="fas fa-comment-medical"></i> Reason for Visit
+                        </label>
+                        <textarea class="form-control" 
+                                  id="reason" 
+                                  name="reason" 
+                                  rows="4" 
+                                  placeholder="Please describe your symptoms or reason for the appointment..."
+                                  required></textarea>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>Please Note:</strong>
+                        <ul class="mb-0 mt-2">
+                            <li>Appointments can be scheduled at least 24 hours in advance</li>
+                            <li>You will receive a confirmation email once your appointment is confirmed</li>
+                            <li>Please arrive 15 minutes early for your appointment</li>
+                            <li>Bring your ID and insurance information</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'patients:dashboard' %}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Back to Dashboard
+                        </a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-calendar-check"></i> Book Appointment
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Doctor Information Modal -->
+<div class="modal fade" id="doctorModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Doctor Information</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="doctorInfo">
+                    <!-- Doctor information will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function filterDoctors() {
+    const departmentId = document.getElementById('department').value;
+    const doctorSelect = document.getElementById('doctor');
+    const options = doctorSelect.getElementsByTagName('option');
+    
+    for (let i = 1; i < options.length; i++) {
+        const option = options[i];
+        if (departmentId === '' || option.dataset.department === departmentId) {
+            option.style.display = '';
+        } else {
+            option.style.display = 'none';
+        }
+    }
+    
+    doctorSelect.value = '';
+}
+
+// Time slot selection
+document.querySelectorAll('.time-slot').forEach(button => {
+    button.addEventListener('click', function() {
+        // Remove active class from all buttons
+        document.querySelectorAll('.time-slot').forEach(btn => btn.classList.remove('btn-primary'));
+        document.querySelectorAll('.time-slot').forEach(btn => btn.classList.add('btn-outline-secondary'));
+        
+        // Add active class to clicked button
+        this.classList.remove('btn-outline-secondary');
+        this.classList.add('btn-primary');
+        
+        // Set the time in the datetime input
+        const dateInput = document.getElementById('appointment_date');
+        if (dateInput.value) {
+            const date = dateInput.value.split('T')[0];
+            dateInput.value = date + 'T' + this.dataset.time;
+        }
+    });
+});
+
+// Set minimum date to today
+document.getElementById('appointment_date').min = new Date().toISOString().split('T')[0] + 'T08:00';
+</script>
+{% endblock %}

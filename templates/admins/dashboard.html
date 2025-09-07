@@ -1,0 +1,159 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Dashboard - E-Hospitality{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2><i class="fas fa-users-cog"></i> Admin Dashboard</h2>
+            <p class="text-muted">Welcome, {{ user.get_full_name|default:user.username }}! System administration panel.</p>
+        </div>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row mb-4">
+        <div class="col-md-3 mb-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="card-title">{{ total_users|default:0 }}</h4>
+                            <p class="card-text">Total Users</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-users fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="card-title">{{ total_doctors|default:0 }}</h4>
+                            <p class="card-text">Doctors</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-user-md fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="card bg-info text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="card-title">{{ total_patients|default:0 }}</h4>
+                            <p class="card-text">Patients</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-user-injured fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h4 class="card-title">{{ total_appointments|default:0 }}</h4>
+                            <p class="card-text">Appointments</p>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="fas fa-calendar-check fa-2x"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h4><i class="fas fa-bolt"></i> Quick Actions</h4>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <a href="{% url 'admins:user_management' %}" class="card text-decoration-none h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-users-cog fa-2x text-primary mb-3"></i>
+                    <h6 class="card-title">Manage Users</h6>
+                    <p class="card-text text-muted">Add, edit, and manage system users</p>
+                </div>
+            </a>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <a href="{% url 'admins:appointment_management' %}" class="card text-decoration-none h-100">
+                <div class="card-body text-center">
+                    <i class="fas fa-calendar-alt fa-2x text-success mb-3"></i>
+                    <h6 class="card-title">Appointments</h6>
+                    <p class="card-text text-muted">View and manage all appointments</p>
+                </div>
+            </a>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <a href="#" class="card text-decoration-none h-100" onclick="alert('Reports feature coming soon!');">
+                <div class="card-body text-center">
+                    <i class="fas fa-chart-bar fa-2x text-info mb-3"></i>
+                    <h6 class="card-title">Reports</h6>
+                    <p class="card-text text-muted">Generate system reports</p>
+                </div>
+            </a>
+        </div>
+        
+        <div class="col-md-3 mb-3">
+            <a href="#" class="card text-decoration-none h-100" onclick="alert('Settings feature coming soon!');">
+                <div class="card-body text-center">
+                    <i class="fas fa-cogs fa-2x text-warning mb-3"></i>
+                    <h6 class="card-title">System Settings</h6>
+                    <p class="card-text text-muted">Configure system settings</p>
+                </div>
+            </a>
+        </div>
+    </div>
+
+    <!-- Recent Activities -->
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-clock"></i> Recent Activities</h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        <div class="list-group-item">
+                            <small class="text-muted">System activities will appear here</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h5><i class="fas fa-exclamation-triangle"></i> System Alerts</h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-success" role="alert">
+                        <strong>System Status:</strong> All systems operational
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

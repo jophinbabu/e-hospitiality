@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - E-Hospitality{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2><i class="fas fa-tachometer-alt"></i> Welcome, {{ user.get_full_name|default:user.username }}!</h2>
+            <p class="text-muted">You are logged in as: <strong>{{ user.get_user_type_display }}</strong></p>
+        </div>
+    </div>
+
+    <!-- Available Dashboards -->
+    <div class="row">
+        {% for dashboard in dashboards %}
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 {% if not dashboard.available %}text-muted{% endif %}">
+                    <div class="card-body text-center">
+                        <i class="fas {{ dashboard.icon }} fa-3x {% if dashboard.available %}text-primary{% else %}text-secondary{% endif %} mb-3"></i>
+                        <h5 class="card-title">{{ dashboard.name }}</h5>
+                        <p class="card-text">{{ dashboard.description }}</p>
+                        
+                        {% if dashboard.available %}
+                            <a href="{% url dashboard.url %}" class="btn btn-primary">
+                                <i class="fas fa-arrow-right"></i> Access Dashboard
+                            </a>
+                        {% else %}
+                            <button class="btn btn-secondary" disabled>
+                                <i class="fas fa-lock"></i> Access Restricted
+                            </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <!-- Quick Actions for Current User Type -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <h4><i class="fas fa-bolt"></i> Quick Actions</h4>
+        </div>
+        
+        {% if user.user_type == 'doctor' %}
+            <div class="col-md-3 mb-3">
+                <a href="{% url 'doctors:appointments' %}" class="btn btn-outline-primary w-100">
+                    <i class="fas fa-calendar-check"></i><br>My Appointments
+                </a>
+            </div>
+            <div class="col-md-3 mb-3">
+                <a href="{% url 'doctors:patients' %}" class="btn btn-outline-success w-100">
+                    <i class="fas fa-users"></i><br>My Patients
+                </a>
+            </div>
+            <div class="col-md-3 mb-3">
+                <a href="{% url 'doctors:prescriptions' %}" class="btn btn-outline-warning w-100">
+                    <i class="fas fa-prescription"></i><br>Prescriptions
+                </a>
+            </div>
+            <div class="col-md-3 mb-3">
+                <a href="{% url 'doctors:schedule' %}" class="btn btn-outline-info w-100">
+                    <i class="fas fa-calendar-alt"></i><br>My Schedule
+                </a>
+            </div>
+        {% elif user.user_type == 'patient' %}
+            <div class="col-md-3 mb-3">
+                <a href="{% url 'patients:appointments' %}" class="btn btn-outline-primary w-100">
+                    <i class="fas fa-calendar-check"></i><br>My Appointments
+                </a>
+            </div>
+            <div class="col-md-3 mb-3">
+                <a href="{% url 'patients:book_appointment' %}" class="btn btn-outline-success w-100">
+                    <i class="fas fa-calendar-plus"></i><br>Book Appointment
+                </a>
+            </div>
+            <div class="col-md-3 mb-3">
+                <a href="{% url 'patients:medical_history' %}" class="btn btn-outline-warning w-100">
+                    <i class="fas fa-file-medical"></i><br>Medical History
+                </a>
+            </div>
+            <div class="col-md-3 mb-3">
+                <a href="{% url 'patients:billing' %}" class="btn btn-outline-info w-100">
+                    <i class="fas fa-receipt"></i><br>My Bills
+                </a>
+            </div>
+        {% elif user.user_type == 'admin' %}
+            <div class="col-md-3 mb-3">
+                <a href="{% url 'admins:user_management' %}" class="btn btn-outline-primary w-100">
+                    <i class="fas fa-users-cog"></i><br>Manage Users
+                </a>
+            </div>
+            <div class="col-md-3 mb-3">
+                <a href="{% url 'admins:appointment_management' %}" class="btn btn-outline-success w-100">
+                    <i class="fas fa-calendar-alt"></i><br>All Appointments
+                </a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

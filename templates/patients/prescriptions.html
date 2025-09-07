@@ -1,0 +1,217 @@
+{% extends 'base.html' %}
+
+{% block title %}My Prescriptions - E-Hospitality{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2><i class="fas fa-prescription-bottle-alt"></i> My Prescriptions</h2>
+            <p class="text-muted">Medications prescribed by your doctors</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            {% if prescriptions %}
+                {% for prescription in prescriptions %}
+                <div class="card mb-4 shadow-sm">
+                    <div class="card-header bg-primary text-white">
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <h5 class="mb-0">
+                                    <i class="fas fa-prescription"></i> 
+                                    Prescription #{{ prescription.id }}
+                                </h5>
+                            </div>
+                            <div class="col-auto">
+                                <small>{{ prescription.created_at|date:"F d, Y" }}</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <!-- Doctor Information -->
+                            <div class="col-md-6 mb-3">
+                                <h6 class="text-muted mb-2">
+                                    <i class="fas fa-user-md"></i> Prescribed by:
+                                </h6>
+                                <div class="d-flex align-items-center">
+                                    <div class="me-3">
+                                        <div class="bg-success rounded-circle d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+                                            <i class="fas fa-user-md text-white"></i>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <strong>Dr. {{ prescription.doctor.user.get_full_name }}</strong><br>
+                                        <small class="text-muted">{{ prescription.doctor.specialization }}</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Status -->
+                            <div class="col-md-6 mb-3">
+                                <h6 class="text-muted mb-2">
+                                    <i class="fas fa-info-circle"></i> Status:
+                                </h6>
+                                {% if prescription.is_active %}
+                                    <span class="badge bg-success fs-6">
+                                        <i class="fas fa-check-circle"></i> Active Prescription
+                                    </span>
+                                {% else %}
+                                    <span class="badge bg-secondary fs-6">
+                                        <i class="fas fa-ban"></i> Inactive
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Diagnosis -->
+                        {% if prescription.diagnosis %}
+                        <div class="mb-3">
+                            <h6 class="text-muted mb-2">
+                                <i class="fas fa-stethoscope"></i> Diagnosis:
+                            </h6>
+                            <div class="alert alert-info">
+                                {{ prescription.diagnosis }}
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <!-- Medications -->
+                        <div class="mb-3">
+                            <h6 class="text-muted mb-2">
+                                <i class="fas fa-pills"></i> Medications:
+                            </h6>
+                            <div class="bg-light p-3 rounded">
+                                {{ prescription.medications|linebreaksbr }}
+                            </div>
+                        </div>
+
+                        <!-- Dosage -->
+                        <div class="mb-3">
+                            <h6 class="text-muted mb-2">
+                                <i class="fas fa-clock"></i> Dosage Instructions:
+                            </h6>
+                            <div class="bg-light p-3 rounded">
+                                {{ prescription.dosage|linebreaksbr }}
+                            </div>
+                        </div>
+
+                        <!-- Instructions -->
+                        <div class="mb-3">
+                            <h6 class="text-muted mb-2">
+                                <i class="fas fa-exclamation-triangle"></i> Special Instructions:
+                            </h6>
+                            <div class="alert alert-warning">
+                                {{ prescription.instructions|linebreaksbr }}
+                            </div>
+                        </div>
+
+                        <!-- Actions -->
+                        <div class="d-flex gap-2 mt-3">
+                            <a href="{% url 'patients:prescription_detail' prescription.id %}" class="btn btn-primary btn-sm">
+                                <i class="fas fa-eye"></i> View Full Details
+                            </a>
+                            <button class="btn btn-outline-secondary btn-sm" onclick="window.print()">
+                                <i class="fas fa-print"></i> Print
+                            </button>
+                            <button class="btn btn-outline-info btn-sm" onclick="alert('Download feature coming soon!')">
+                                <i class="fas fa-download"></i> Download PDF
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-footer text-muted">
+                        <small>
+                            <i class="fas fa-calendar"></i> 
+                            Created: {{ prescription.created_at|date:"F d, Y g:i A" }}
+                            {% if prescription.updated_at != prescription.created_at %}
+                                | Updated: {{ prescription.updated_at|date:"F d, Y g:i A" }}
+                            {% endif %}
+                        </small>
+                    </div>
+                </div>
+                {% endfor %}
+
+                <!-- Pagination -->
+                {% if prescriptions.has_other_pages %}
+                    <nav class="mt-4">
+                        <ul class="pagination justify-content-center">
+                            {% if prescriptions.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ prescriptions.previous_page_number }}">
+                                        <i class="fas fa-chevron-left"></i> Previous
+                                    </a>
+                                </li>
+                            {% endif %}
+                            
+                            <li class="page-item active">
+                                <span class="page-link">{{ prescriptions.number }} of {{ prescriptions.paginator.num_pages }}</span>
+                            </li>
+                            
+                            {% if prescriptions.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ prescriptions.next_page_number }}">
+                                        Next <i class="fas fa-chevron-right"></i>
+                                    </a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                {% endif %}
+            {% else %}
+                <div class="text-center py-5">
+                    <i class="fas fa-prescription-bottle-alt fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">No Prescriptions Found</h5>
+                    <p class="text-muted">You don't have any prescriptions from your doctors yet.</p>
+                    <div class="mt-3">
+                        <a href="{% url 'patients:book_appointment' %}" class="btn btn-primary">
+                            <i class="fas fa-calendar-plus"></i> Book an Appointment
+                        </a>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Health Reminders Section -->
+{% if prescriptions %}
+<div class="row mt-5">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-bell"></i> Important Reminders
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="alert alert-primary">
+                            <i class="fas fa-clock"></i>
+                            <strong>Take medications on time</strong><br>
+                            Follow the prescribed dosage schedule
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <strong>Complete the course</strong><br>
+                            Don't stop medications early
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="alert alert-success">
+                            <i class="fas fa-user-md"></i>
+                            <strong>Contact your doctor</strong><br>
+                            If you experience side effects
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
