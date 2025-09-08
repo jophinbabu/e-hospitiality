@@ -4,16 +4,15 @@ from . import views
 app_name = 'patients'
 
 urlpatterns = [
-    # Dashboard
+    # Dashboard and Profile
     path('dashboard/', views.patient_dashboard, name='dashboard'),
-    
-    # Profile Management
     path('profile/', views.patient_profile, name='profile'),
     path('profile/edit/', views.edit_patient_profile, name='edit_profile'),
     
     # Appointment Management
     path('appointments/', views.patient_appointments, name='appointments'),
     path('appointments/book/', views.book_appointment, name='book_appointment'),
+    path('appointments/<int:appointment_id>/', views.appointment_detail, name='appointment_detail'),
     path('appointments/<int:appointment_id>/cancel/', views.cancel_appointment, name='cancel_appointment'),
     path('appointments/<int:appointment_id>/reschedule/', views.reschedule_appointment, name='reschedule_appointment'),
     

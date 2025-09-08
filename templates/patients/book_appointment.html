@@ -3,168 +3,252 @@
 {% block title %}Book Appointment - E-Hospitality{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-8">
-        <div class="card">
-            <div class="card-header">
-                <h3 class="mb-0"><i class="fas fa-calendar-plus"></i> Book New Appointment</h3>
-            </div>
-            <div class="card-body">
-                <form method="post">
-                    {% csrf_token %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0"><i class="fas fa-calendar-plus"></i> Book New Appointment</h3>
+                </div>
+                <div class="card-body">
+                    <!-- Success Message (if appointment created) -->
+                    {% if appointment_created %}
+                    <div class="alert alert-success">
+                        <h4><i class="fas fa-check-circle"></i> Appointment Booked Successfully!</h4>
+                        <p>Your appointment with <strong>Dr. {{ appointment.doctor.user.get_full_name }}</strong> is scheduled for <strong>{{ appointment.appointment_date|date:"M d, Y g:i A" }}</strong>.</p>
+                    </div>
                     
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="department" class="form-label">
-                                <i class="fas fa-building"></i> Department
-                            </label>
-                            <select class="form-select" id="department" onchange="filterDoctors()">
-                                <option value="">Select Department</option>
+                    <!-- Payment Section -->
+                    <div class="card border-warning mb-4">
+                        <div class="card-header bg-warning text-dark">
+                            <h5><i class="fas fa-credit-card"></i> Complete Payment</h5>
+                        </div>
+                        <div class="card-body text-center">
+                            <h4>Consultation Fee: <span class="text-success">₹{{ appointment.doctor.consultation_fee }}</span></h4>
+                            <p class="text-muted">Secure your appointment by completing the payment</p>
+                            
+                            <a href="{% url 'payments:pay_appointment' appointment.id %}" class="btn btn-success btn-lg">
+                                <i class="fas fa-credit-card"></i> Pay ₹{{ appointment.doctor.consultation_fee }} Now
+                            </a>
+                            <p class="small text-muted mt-2">
+                                <i class="fas fa-shield-alt"></i> 100% secure payment via Razorpay
+                            </p>
+                            
+                            <div class="mt-3">
+                                <a href="{% url 'patients:appointments' %}" class="btn btn-outline-primary">
+                                    <i class="fas fa-calendar"></i> View My Appointments
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Booking Form -->
+                    {% if not appointment_created %}
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <!-- Department Selection -->
+                        <div class="mb-3">
+                            <label for="department" class="form-label"><i class="fas fa-building"></i> Department</label>
+                            <select id="department" class="form-select" onchange="filterDoctors()">
+                                <option value="">All Departments</option>
                                 {% for department in departments %}
                                 <option value="{{ department.id }}">{{ department.name }}</option>
                                 {% endfor %}
                             </select>
                         </div>
-                        
-                        <div class="col-md-6 mb-3">
-                            <label for="doctor" class="form-label">
-                                <i class="fas fa-user-md"></i> Doctor
-                            </label>
-                            <select class="form-select" id="doctor" name="doctor" required>
+
+                        <!-- Doctor Selection -->
+                        <div class="mb-3">
+                            <label for="doctor" class="form-label"><i class="fas fa-user-md"></i> Doctor *</label>
+                            <select id="doctor" name="doctor" class="form-select" required>
                                 <option value="">Select Doctor</option>
                                 {% for doctor in doctors %}
-                                <option value="{{ doctor.id }}" data-department="{{ doctor.department.id }}">
-                                    Dr. {{ doctor.user.first_name }} {{ doctor.user.last_name }} 
-                                    ({{ doctor.specialization }})
+                                <option value="{{ doctor.id }}" data-department="{{ doctor.department.id|default:'' }}" data-fee="{{ doctor.consultation_fee }}">
+                                    Dr. {{ doctor.user.get_full_name }} - {{ doctor.specialization }} (₹{{ doctor.consultation_fee }})
                                 </option>
                                 {% endfor %}
                             </select>
                         </div>
-                    </div>
-                    
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label for="appointment_date" class="form-label">
-                                <i class="fas fa-calendar-alt"></i> Appointment Date
-                            </label>
+
+                        <!-- Date & Time -->
+                        <div class="mb-3">
+                            <label for="appointment_date" class="form-label"><i class="fas fa-calendar"></i> Date & Time *</label>
                             <input type="datetime-local" 
-                                   class="form-control" 
                                    id="appointment_date" 
                                    name="appointment_date" 
-                                   required
-                                   min="{{ today|date:'Y-m-d' }}T08:00">
+                                   class="form-control" 
+                                   required>
                         </div>
-                        
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">
-                                <i class="fas fa-clock"></i> Available Times
-                            </label>
-                            <div class="d-flex flex-wrap gap-2">
-                                <button type="button" class="btn btn-outline-secondary btn-sm time-slot" data-time="09:00">9:00 AM</button>
-                                <button type="button" class="btn btn-outline-secondary btn-sm time-slot" data-time="10:00">10:00 AM</button>
-                                <button type="button" class="btn btn-outline-secondary btn-sm time-slot" data-time="11:00">11:00 AM</button>
-                                <button type="button" class="btn btn-outline-secondary btn-sm time-slot" data-time="14:00">2:00 PM</button>
-                                <button type="button" class="btn btn-outline-secondary btn-sm time-slot" data-time="15:00">3:00 PM</button>
-                                <button type="button" class="btn btn-outline-secondary btn-sm time-slot" data-time="16:00">4:00 PM</button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label for="reason" class="form-label">
-                            <i class="fas fa-comment-medical"></i> Reason for Visit
-                        </label>
-                        <textarea class="form-control" 
-                                  id="reason" 
-                                  name="reason" 
-                                  rows="4" 
-                                  placeholder="Please describe your symptoms or reason for the appointment..."
-                                  required></textarea>
-                    </div>
-                    
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle"></i>
-                        <strong>Please Note:</strong>
-                        <ul class="mb-0 mt-2">
-                            <li>Appointments can be scheduled at least 24 hours in advance</li>
-                            <li>You will receive a confirmation email once your appointment is confirmed</li>
-                            <li>Please arrive 15 minutes early for your appointment</li>
-                            <li>Bring your ID and insurance information</li>
-                        </ul>
-                    </div>
-                    
-                    <div class="d-flex justify-content-between">
-                        <a href="{% url 'patients:dashboard' %}" class="btn btn-secondary">
-                            <i class="fas fa-arrow-left"></i> Back to Dashboard
-                        </a>
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-calendar-check"></i> Book Appointment
-                        </button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
 
-<!-- Doctor Information Modal -->
-<div class="modal fade" id="doctorModal" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">Doctor Information</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <div id="doctorInfo">
-                    <!-- Doctor information will be loaded here -->
+                        <!-- Reason -->
+                        <div class="mb-3">
+                            <label for="reason" class="form-label"><i class="fas fa-comment-medical"></i> Reason for Visit *</label>
+                            <textarea id="reason" 
+                                      name="reason" 
+                                      class="form-control" 
+                                      rows="4" 
+                                      placeholder="Please describe your symptoms or reason for the appointment..." 
+                                      required></textarea>
+                        </div>
+
+                        <!-- Consultation Fee Display -->
+                        <div class="alert alert-info" id="feeAlert" style="display: none;">
+                            <i class="fas fa-info-circle"></i> 
+                            <strong>Consultation Fee:</strong> <span id="consultationFee">₹0</span>
+                            <br><small>Payment will be required after booking to confirm your appointment.</small>
+                        </div>
+
+                        <!-- Buttons -->
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'patients:dashboard' %}" class="btn btn-secondary">
+                                <i class="fas fa-arrow-left"></i> Back
+                            </a>
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-calendar-check"></i> Book Appointment
+                            </button>
+                        </div>
+                    </form>
+
+                    <!-- Booking Info -->
+                    <div class="mt-4">
+                        <div class="alert alert-light">
+                            <h6><i class="fas fa-info-circle"></i> Important Information:</h6>
+                            <ul class="small mb-0">
+                                <li>Appointments must be scheduled at least 1 day in advance</li>
+                                <li>Payment is required to confirm your appointment</li>
+                                <li>Please arrive 15 minutes early</li>
+                                <li>Bring valid ID and insurance documents</li>
+                            </ul>
+                        </div>
+                    </div>
+                    {% endif %}
                 </div>
             </div>
         </div>
     </div>
 </div>
-{% endblock %}
 
-{% block extra_js %}
 <script>
+// Filter doctors by department
 function filterDoctors() {
-    const departmentId = document.getElementById('department').value;
+    const deptId = document.getElementById('department').value;
     const doctorSelect = document.getElementById('doctor');
-    const options = doctorSelect.getElementsByTagName('option');
+    const feeAlert = document.getElementById('feeAlert');
     
-    for (let i = 1; i < options.length; i++) {
-        const option = options[i];
-        if (departmentId === '' || option.dataset.department === departmentId) {
+    // Hide fee alert when department changes
+    feeAlert.style.display = 'none';
+    
+    // Filter doctor options
+    for (let option of doctorSelect.options) {
+        if (option.value === '') continue; // Skip default option
+        
+        const optionDept = option.getAttribute('data-department');
+        if (deptId === '' || optionDept === deptId) {
             option.style.display = '';
         } else {
             option.style.display = 'none';
         }
     }
     
-    doctorSelect.value = '';
+    doctorSelect.value = ''; // Reset selection
 }
 
-// Time slot selection
-document.querySelectorAll('.time-slot').forEach(button => {
-    button.addEventListener('click', function() {
-        // Remove active class from all buttons
-        document.querySelectorAll('.time-slot').forEach(btn => btn.classList.remove('btn-primary'));
-        document.querySelectorAll('.time-slot').forEach(btn => btn.classList.add('btn-outline-secondary'));
-        
-        // Add active class to clicked button
-        this.classList.remove('btn-outline-secondary');
-        this.classList.add('btn-primary');
-        
-        // Set the time in the datetime input
-        const dateInput = document.getElementById('appointment_date');
-        if (dateInput.value) {
-            const date = dateInput.value.split('T')[0];
-            dateInput.value = date + 'T' + this.dataset.time;
-        }
-    });
+// Show consultation fee when doctor is selected
+document.getElementById('doctor').addEventListener('change', function() {
+    const selectedOption = this.options[this.selectedIndex];
+    const feeAlert = document.getElementById('feeAlert');
+    const feeSpan = document.getElementById('consultationFee');
+    
+    if (this.value && selectedOption.dataset.fee) {
+        feeSpan.textContent = '₹' + selectedOption.dataset.fee;
+        feeAlert.style.display = 'block';
+    } else {
+        feeAlert.style.display = 'none';
+    }
 });
 
-// Set minimum date to today
-document.getElementById('appointment_date').min = new Date().toISOString().split('T')[0] + 'T08:00';
+// Set minimum date/time (tomorrow 8 AM)
+window.onload = function() {
+    const input = document.getElementById('appointment_date');
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setHours(8, 0, 0, 0); // Set to 8 AM
+    
+    const minDateTime = tomorrow.toISOString().slice(0, 16);
+    input.min = minDateTime;
+    input.value = minDateTime; // Set default to tomorrow 8 AM
+};
+
+// Form validation
+document.querySelector('form').addEventListener('submit', function(e) {
+    const doctor = document.getElementById('doctor').value;
+    const appointmentDate = document.getElementById('appointment_date').value;
+    const reason = document.getElementById('reason').value;
+    
+    if (!doctor || !appointmentDate || !reason.trim()) {
+        e.preventDefault();
+        alert('Please fill in all required fields.');
+        return;
+    }
+    
+    // Check if appointment is at least 24 hours from now
+    const selectedDate = new Date(appointmentDate);
+    const now = new Date();
+    const diffHours = (selectedDate - now) / (1000 * 60 * 60);
+    
+    if (diffHours < 24) {
+        e.preventDefault();
+        alert('Appointments must be scheduled at least 24 hours in advance.');
+        return;
+    }
+});
 </script>
+
+<style>
+.card {
+    border: none;
+    border-radius: 10px;
+}
+
+.card-header {
+    border-radius: 10px 10px 0 0 !important;
+}
+
+.form-select:focus,
+.form-control:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+.btn-primary {
+    background: linear-gradient(45deg, #007bff, #0056b3);
+    border: none;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(45deg, #0056b3, #004494);
+    transform: translateY(-1px);
+}
+
+.alert-info {
+    border-left: 4px solid #17a2b8;
+    background-color: #d1ecf1;
+}
+
+.alert-light {
+    border-left: 4px solid #6c757d;
+}
+
+@media (max-width: 768px) {
+    .container {
+        padding: 10px;
+    }
+    
+    .card-body {
+        padding: 1rem;
+    }
+}
+</style>
 {% endblock %}

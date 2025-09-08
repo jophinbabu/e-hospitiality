@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+
+{% block title %}Payment - E-Hospitality{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white text-center">
+                    <h4><i class="fas fa-credit-card"></i> Secure Payment</h4>
+                    <p class="mb-0">E-Hospitality Payment Gateway</p>
+                </div>
+                <div class="card-body">
+                    <!-- Payment Details -->
+                    <div class="row mb-4">
+                        <div class="col-md-6">
+                            <h5>Payment Details</h5>
+                            <p><strong>Description:</strong> {{ payment.description }}</p>
+                            <p><strong>Amount:</strong> ₹{{ payment.amount }}</p>
+                            {% if doctor %}
+                                <p><strong>Doctor:</strong> Dr. {{ doctor.user.get_full_name }}</p>
+                                <p><strong>Specialization:</strong> {{ doctor.specialization }}</p>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <h5>Patient Information</h5>
+                            <p><strong>Name:</strong> {{ user.get_full_name }}</p>
+                            <p><strong>Email:</strong> {{ user.email }}</p>
+                            <p><strong>Phone:</strong> {{ user.phone|default:"Not provided" }}</p>
+                        </div>
+                    </div>
+
+                    <hr>
+
+                    <!-- Payment Button -->
+                    <div class="text-center">
+                        <h5 class="mb-3">Complete Your Payment</h5>
+                        <button id="pay-button" class="btn btn-success btn-lg">
+                            <i class="fas fa-lock"></i> Pay ₹{{ payment.amount }} Securely
+                        </button>
+                        <p class="mt-3 text-muted">
+                            <i class="fas fa-shield-alt"></i> Your payment is secured by 256-bit SSL encryption
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Razorpay Checkout Script -->
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+document.getElementById('pay-button').onclick = function(e){
+    var options = {
+        "key": "{{ razorpay_key_id }}",
+        "amount": "{{ amount }}",
+        "currency": "{{ currency }}",
+        "name": "E-Hospitality",
+        "description": "{{ payment.description }}",
+        "image": "/static/img/logo.png",
+        "order_id": "{{ razorpay_order_id }}",
+        "handler": function (response){
+            // Create form and submit payment response
+            var form = document.createElement('form');
+            form.method = 'POST';
+            form.action = "{% url 'payments:success' %}";
+            
+            // Add CSRF token
+            var csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = 'csrfmiddlewaretoken';
+            csrfInput.value = '{{ csrf_token }}';
+            form.appendChild(csrfInput);
+            
+            // Add payment response data
+            var orderIdInput = document.createElement('input');
+            orderIdInput.type = 'hidden';
+            orderIdInput.name = 'razorpay_order_id';
+            orderIdInput.value = response.razorpay_order_id;
+            form.appendChild(orderIdInput);
+            
+            var paymentIdInput = document.createElement('input');
+            paymentIdInput.type = 'hidden';
+            paymentIdInput.name = 'razorpay_payment_id';
+            paymentIdInput.value = response.razorpay_payment_id;
+            form.appendChild(paymentIdInput);
+            
+            var signatureInput = document.createElement('input');
+            signatureInput.type = 'hidden';
+            signatureInput.name = 'razorpay_signature';
+            signatureInput.value = response.razorpay_signature;
+            form.appendChild(signatureInput);
+            
+            document.body.appendChild(form);
+            form.submit();
+        },
+        "prefill": {
+            "name": "{{ user.get_full_name }}",
+            "email": "{{ user.email }}",
+            "contact": "{{ user.phone }}"
+        },
+        "notes": {
+            "payment_type": "{{ payment.payment_type }}",
+            "patient_id": "{{ user.id }}"
+        },
+        "theme": {
+            "color": "#0d6efd"
+        }
+    };
+    var rzp = new Razorpay(options);
+    rzp.open();
+    e.preventDefault();
+}
+</script>
+{% endblock %}

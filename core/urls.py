@@ -5,9 +5,19 @@ from . import views
 app_name = 'core'
 
 urlpatterns = [
+    # Homepage - shows landing page with registration info
     path('', views.home, name='home'),
-    path('login/', auth_views.LoginView.as_view(template_name='registration/login.html'), name='login'),
-    path('logout/', auth_views.LogoutView.as_view(), name='logout'),
+    
+    # Registration
     path('register/', views.register, name='register'),
-    path('profile/', views.profile, name='profile'),
+    
+    # Dashboard redirect (after login)
+    path('dashboard/', views.dashboard_redirect, name='dashboard'),
+    
+    # Authentication
+    path('login/', auth_views.LoginView.as_view(
+        template_name='registration/login.html'
+    ), name='login'),
+    
+    path('logout/', auth_views.LogoutView.as_view(), name='logout'),
 ]

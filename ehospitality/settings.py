@@ -13,9 +13,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-kb##qm$01s+zdls(sc%df&7qetp10#5yedv&_)zm(l@mu24l#&'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True  # ❌ Change to False in production
+DEBUG = True # ❌ Change to False in production
 
-ALLOWED_HOSTS = ["*"]  # On PythonAnywhere you can set your domain here
+ALLOWED_HOSTS = ["*"] # On PythonAnywhere set your domain here
 
 # Application definition
 INSTALLED_APPS = [
@@ -29,6 +29,7 @@ INSTALLED_APPS = [
     'patients',
     'doctors',
     'admins',
+    'payments', # ✅ Already added
 ]
 
 MIDDLEWARE = [
@@ -61,8 +62,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'ehospitality.wsgi.application'
 
-# Custom User Model
-AUTH_USER_MODEL = 'core.CustomUser'
+# ✅ FIXED: Custom User Model
+AUTH_USER_MODEL = 'core.CustomUser' # Changed to match your actual model
 
 # Database
 DATABASES = {
@@ -94,47 +95,31 @@ TIME_ZONE = 'Asia/Kolkata'
 USE_I18N = True
 USE_TZ = True
 
-# -------------------------------
 # Static files (CSS, JavaScript, Images)
-# -------------------------------
 STATIC_URL = '/static/'
-
-# Local static files (development)
 STATICFILES_DIRS = [BASE_DIR / "static"]
-
-# Deployment static root (where collectstatic gathers all files)
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
-# -------------------------------
 # Media files (uploads)
-# -------------------------------
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-# -------------------------------
-# Authentication Settings
-# -------------------------------
+# ✅ FIXED: Authentication Settings for Role-Based Redirection
 LOGIN_URL = 'core:login'
-LOGIN_REDIRECT_URL = 'core:home'   # Redirect after successful login
-LOGOUT_REDIRECT_URL = 'core:home' # Redirect after logout
+LOGIN_REDIRECT_URL = 'core:dashboard'  # ✅ Changed from 'core:home' to 'core:dashboard'
+LOGOUT_REDIRECT_URL = 'core:home'
 
-# -------------------------------
 # Email settings (for development)
-# -------------------------------
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-# -------------------------------
 # Cache settings
-# -------------------------------
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
     }
 }
 
-# -------------------------------
 # Message tags for Bootstrap styling
-# -------------------------------
 MESSAGE_TAGS = {
     messages.DEBUG: 'debug',
     messages.INFO: 'info',
@@ -142,3 +127,10 @@ MESSAGE_TAGS = {
     messages.WARNING: 'warning',
     messages.ERROR: 'danger',
 }
+
+# 🆕 RAZORPAY CONFIGURATION (FIXED NAMING)
+RAZORPAY_KEY_ID = os.environ.get('RAZORPAY_KEY_ID', 'rzp_test_RFAr1dqFyUhwVi')
+RAZORPAY_KEY_SECRET = os.environ.get('RAZORPAY_KEY_SECRET', 'S3bwfBcXXhY2ZGdJvp19j5Ry')
+
+# Default primary key field type
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
