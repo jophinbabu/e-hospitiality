@@ -3,6 +3,8 @@ Django settings for ehospitality project.
 """
 
 from pathlib import Path
+import os
+from django.contrib.messages import constants as messages
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -11,9 +13,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-kb##qm$01s+zdls(sc%df&7qetp10#5yedv&_)zm(l@mu24l#&'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = True  # ❌ Change to False in production
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]  # On PythonAnywhere you can set your domain here
 
 # Application definition
 INSTALLED_APPS = [
@@ -92,33 +94,47 @@ TIME_ZONE = 'Asia/Kolkata'
 USE_I18N = True
 USE_TZ = True
 
+# -------------------------------
 # Static files (CSS, JavaScript, Images)
+# -------------------------------
 STATIC_URL = '/static/'
+
+# Local static files (development)
 STATICFILES_DIRS = [BASE_DIR / "static"]
 
+# Deployment static root (where collectstatic gathers all files)
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
+# -------------------------------
+# Media files (uploads)
+# -------------------------------
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-# Default primary key field type
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-# Authentication Settings (FIXED - Remove duplicates and use proper values)
+# -------------------------------
+# Authentication Settings
+# -------------------------------
 LOGIN_URL = 'core:login'
-LOGIN_REDIRECT_URL = 'core:home'  # Redirect after successful login
-LOGOUT_REDIRECT_URL = 'core:home'  # Redirect after logout
+LOGIN_REDIRECT_URL = 'core:home'   # Redirect after successful login
+LOGOUT_REDIRECT_URL = 'core:home' # Redirect after logout
 
+# -------------------------------
 # Email settings (for development)
+# -------------------------------
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
+# -------------------------------
 # Cache settings
+# -------------------------------
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
     }
 }
 
+# -------------------------------
 # Message tags for Bootstrap styling
-from django.contrib.messages import constants as messages
+# -------------------------------
 MESSAGE_TAGS = {
     messages.DEBUG: 'debug',
     messages.INFO: 'info',
